@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UserMapper">
+	<select id="getUser" parameterType="String" resultType="Map">
+		select * from SYS_USER where username=#{username}
+	</select>
+	
+	<select id="getUserLxrList" parameterType="String" resultType="com.example.demo.bean.Hr">
+		select h.name, h.pinyin, h.remark, h.userface, h.time, h.groupFlag from HR h 
+		where h.pinyin is not null and h.username &lt;&gt;#{username}
+	</select>
+	
+	<select id="getSessionList" parameterType="String" resultType="Map">
+		select h.name,h.pinyin,h.userface,h.groupFlag,mh.sessionId,m.message remark,m.createDate time from sysmsg mh
+		left join (select * from  msgcontent where id in(select max(id) from msgcontent where sendHrId=#{hrUserName} or acceptHrId = #{hrUserName} group by sessionId)) m on mh.sessionId = m.sessionId and mh.sendHrId=#{hrUserName}
+		left join hr h on mh.acceptHrId = h.username 
+		where 1=1 and mh.hrUserName=#{hrUserName} order by m.createDate desc
+	</select>
+	<select id="findSessionBySessionId" parameterType="String" resultType="Map">
+		select * from sysmsg where ((sendHrId=#{sendHrId} and acceptHrId=#{acceptHrId}) or (sendHrId=#{acceptHrId} and acceptHrId=#{sendHrId})) and hrUserName=#{hrUserName}
+	</select>
+	<update id="modifyPassword" parameterType="String">
+		update HR set password=#{password}
+	</update>
+	<delete id="deleteSession" parameterType="String">
+		delete from sysmsg where sessionId=#{sessionId} and hrUserName=#{hrUserName}
+	</delete>
+	<insert id="saveMessage" >
+		insert into msgcontent(message, sessionId, sendHrId, acceptHrId) 
+		values(#{message}, #{sessionId}, #{sendHrId}, #{acceptHrId})
+	</insert>
+	
+	<insert id="saveNewSession" >
+		insert into sysmsg(sendHrId, acceptHrId, sessionId, hrUserName) 
+		values(#{sendHrId}, #{acceptHrId}, #{sessionId}, #{hrUserName})
+	</insert>
+	
+	<select id="selectMessageList" resultType="map">
+		select m.sessionId, m.message, m.createDate, h.*,m.acceptHrId, m.sendHrId from msgcontent m 
+		left join hr h on (m.acceptHrId=h.username and m.sendHrId = #{sendHrId}) 
+		or (m.sendHrId = h.username and m.acceptHrId = #{sendHrId})
+		where 1=1 and m.sessionId=#{sessionId} and (m.sendHrId = #{sendHrId} or m.acceptHrId=#{sendHrId})
+		order by m.createDate desc,id asc
+		limit #{limitNumStart},#{limitNumEnd}
+	</select>
+</mapper>

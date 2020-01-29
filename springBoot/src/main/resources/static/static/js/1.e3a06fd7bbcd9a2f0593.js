@@ -1,0 +1,2 @@
+webpackJsonp([1],{nCU1:function(r,e,n){var t={"./StaAll.vue":"4/RD","./StaPers.vue":"97Ts","./StaRecord.vue":"Tlrr","./StaScore.vue":"r3HF"};function o(r){return n(u(r))}function u(r){var e=t[r];if(!(e+1))throw new Error("Cannot find module '"+r+"'.");return e}o.keys=function(){return Object.keys(t)},o.resolve=u,r.exports=o,o.id="nCU1"}});
+//# sourceMappingURL=1.e3a06fd7bbcd9a2f0593.js.map
